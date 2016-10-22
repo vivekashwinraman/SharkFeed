@@ -1,6 +1,5 @@
 package com.sharkfeed.activities;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -8,23 +7,22 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
 
 import com.sharkfeed.R;
 import com.sharkfeed.adapters.SharkItemAdapter;
 import com.sharkfeed.apicommunicators.FlickrApiCommunicator;
-import com.sharkfeed.asynctasks.ServerInteractionTask;
+import com.sharkfeed.apicommunicators.ServerInteractor;
 import com.sharkfeed.business.contracts.FlickrPhotoContract;
 import com.sharkfeed.business.contracts.PhotoContract;
 import com.sharkfeed.business.managers.FlickrManager;
-import com.sharkfeed.interfaces.ServerResponseListener;
 import com.sharkfeed.modelobjects.ServerResponseObject;
 import com.sharkfeed.modelobjects.SharkItem;
-import com.sharkfeed.uicontrols.RecyclerItemClickListener;
-import com.sharkfeed.uicontrols.RecyclerOnScrollListener;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import rx.Subscriber;
+import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
@@ -34,6 +32,9 @@ public class MainActivity extends BaseActivity {
     private List<SharkItem> sharkItemList = new ArrayList<SharkItem>();
     private static int currentPage = 1;
     private GridLayoutManager layoutManager;
+    private int itemCount, lastVisibleItem;
+    private int visibleThreshold = 5;
+    private boolean loading;
 
     /************************************************************************************************/
     @Override
@@ -48,8 +49,6 @@ public class MainActivity extends BaseActivity {
                 swipeRefreshLayout.setRefreshing(true);
                 layoutManager.scrollToPosition(0);
                 sharkItemList.clear();
-                removeScrollListener();
-                addScrollListener();
                 refreshItems(currentPage);
 
             }
@@ -62,30 +61,28 @@ public class MainActivity extends BaseActivity {
         sharkItemAdapter = new SharkItemAdapter(sharkItemList, this);
         sharkRecyclerView.setAdapter(sharkItemAdapter);
         sharkRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        sharkRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        Intent intent = new Intent(getApplicationContext(), ImageDetailActivity.class);
-                        Bundle mBundle = new Bundle();
-                        mBundle.putParcelable("image", sharkItemList.get(position));
-                        intent.putExtras(mBundle);
-                        startActivity(intent);
-                    }
-                })
-        );
         addScrollListener();
     }
-
     /************************************************************************************************/
     private void refreshItems(final int page) {
         String endpoint = "?method=flickr.photos.search&api_key=" + FlickrApiCommunicator.API_KEY + "&tags=shark&format=json&nojsoncallback=1&page=" + page + "&extras=url_t,url_l";
-        new ServerInteractionTask(new FlickrManager(FlickrPhotoContract.class, endpoint), new ServerResponseListener() {
+        Subscriber<ServerResponseObject> subscriber = new Subscriber<ServerResponseObject>() {
             @Override
-            public void onResponseReceived(ServerResponseObject responseObject) {
-                onPhotoListResponse(responseObject);
+            public void onCompleted() {
+
             }
-        }, FlickrManager.class).execute();
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(ServerResponseObject serverResponseObject) {
+                onPhotoListResponse(serverResponseObject);
+            }
+        };
+        compositeSubscription.add(new ServerInteractor(new FlickrManager(FlickrPhotoContract.class,endpoint), FlickrManager.class).makeServerRequest(subscriber));
     }
 
     /************************************************************************************************/
@@ -97,28 +94,26 @@ public class MainActivity extends BaseActivity {
                 sharkItemList.add(new SharkItem(photoContract));
             }
             sharkItemAdapter.notifyDataSetChanged();
+            loading = false;
             Log.v(TAG, String.valueOf(flickrPhotoContract.stat));
         } else {
             showErrorDialog(getResources().getString(R.string.network_connect_issue));
         }
         swipeRefreshLayout.setRefreshing(false);
     }
-
-    /************************************************************************************************/
-    private void removeScrollListener() {
-        sharkRecyclerView.removeOnScrollListener(new RecyclerOnScrollListener(layoutManager) {
-            @Override
-            public void onLoadMore(int current_page) {
-            }
-        });
-    }
-
     /************************************************************************************************/
     private void addScrollListener() {
-        sharkRecyclerView.addOnScrollListener(new RecyclerOnScrollListener(layoutManager) {
+        sharkRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onLoadMore(int current_page) {
-                refreshItems(current_page);
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                itemCount = layoutManager.getItemCount();
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                if (!loading && itemCount <= (lastVisibleItem + visibleThreshold)) {
+                    loading = true;
+                    currentPage++;
+                    refreshItems(currentPage);
+                }
             }
         });
     }

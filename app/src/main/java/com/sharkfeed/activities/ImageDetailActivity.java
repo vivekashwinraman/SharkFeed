@@ -14,16 +14,17 @@ import android.widget.Toast;
 
 import com.sharkfeed.R;
 import com.sharkfeed.apicommunicators.FlickrApiCommunicator;
-import com.sharkfeed.asynctasks.ServerInteractionTask;
+import com.sharkfeed.apicommunicators.ServerInteractor;
 import com.sharkfeed.business.contracts.FlickrPhotoInfoContract;
 import com.sharkfeed.business.managers.FlickrManager;
-import com.sharkfeed.interfaces.ServerResponseListener;
 import com.sharkfeed.modelobjects.ServerResponseObject;
 import com.sharkfeed.modelobjects.SharkItem;
 import com.sharkfeed.receivers.DownloadReceiver;
 import com.sharkfeed.services.DownloadImageService;
 import com.sharkfeed.uicontrols.SharkFeedProgressDialog;
 import com.squareup.picasso.Picasso;
+
+import rx.Subscriber;
 
 
 public class ImageDetailActivity extends BaseActivity implements DownloadReceiver.Receiver {
@@ -96,12 +97,23 @@ public class ImageDetailActivity extends BaseActivity implements DownloadReceive
     /************************************************************************************************/
     private void getFlickrPhotoInfo(String photoId) {
         String endpoint = "?method=flickr.photos.getInfo&api_key=" + FlickrApiCommunicator.API_KEY + "&photo_id=" + photoId + "&format=json&nojsoncallback=1";
-        new ServerInteractionTask(new FlickrManager(FlickrPhotoInfoContract.class, endpoint), new ServerResponseListener() {
+        Subscriber<ServerResponseObject> subscriber = new Subscriber<ServerResponseObject>() {
             @Override
-            public void onResponseReceived(ServerResponseObject responseObject) {
-                onPhotoInfoResponse(responseObject);
+            public void onCompleted() {
+
             }
-        }, FlickrManager.class).execute();
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onNext(ServerResponseObject serverResponseObject) {
+                onPhotoInfoResponse(serverResponseObject);
+            }
+        };
+        compositeSubscription.add(new ServerInteractor(new FlickrManager(FlickrPhotoInfoContract.class, endpoint), FlickrManager.class).makeServerRequest(subscriber));
     }
 
     /************************************************************************************************/

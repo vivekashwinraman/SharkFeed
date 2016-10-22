@@ -1,6 +1,8 @@
 package com.sharkfeed.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.sharkfeed.R;
+import com.sharkfeed.activities.ImageDetailActivity;
 import com.sharkfeed.modelobjects.SharkItem;
 import com.squareup.picasso.Picasso;
 
@@ -47,12 +50,22 @@ public class SharkItemAdapter extends RecyclerView.Adapter<SharkItemAdapter.View
     }
 
     /************************************************************************************************/
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public  class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public ImageView imgViewIcon;
 
         public ViewHolder(View itemLayoutView) {
             super(itemLayoutView);
             imgViewIcon = (ImageView) itemLayoutView.findViewById(R.id.item_icon);
+            itemLayoutView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(context, ImageDetailActivity.class);
+            Bundle mBundle = new Bundle();
+            mBundle.putParcelable("image", sharkItemList.get(getAdapterPosition()));
+            intent.putExtras(mBundle);
+            context.startActivity(intent);
         }
     }
     /************************************************************************************************/

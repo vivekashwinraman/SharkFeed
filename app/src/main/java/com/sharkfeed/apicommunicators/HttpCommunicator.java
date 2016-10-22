@@ -5,7 +5,6 @@ package com.sharkfeed.apicommunicators;
  */
 
 import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.Response;
 import com.sharkfeed.managers.JsonManager;
 
@@ -16,9 +15,7 @@ public class HttpCommunicator {
 
     /*****************************************************************/
     public HttpCommunicator() {
-        AsyncHttpClientConfig.Builder builder = new AsyncHttpClientConfig.Builder();
-        builder.setRequestTimeoutInMs(60 * 1000);
-        asyncClient = new AsyncHttpClient(builder.build());
+        asyncClient = new AsyncHttpClient();
     }
 
     /*****************************************************************/
@@ -41,14 +38,6 @@ public class HttpCommunicator {
             e.printStackTrace();
         }
         return null;
-    }
-    /*****************************************************************/
-    public AsyncHttpClient getAsyncClient() {
-        return asyncClient;
-    }
-    /*****************************************************************/
-    public void setAsyncClient(AsyncHttpClient asyncClient) {
-        this.asyncClient = asyncClient;
     }
     /*****************************************************************/
 }

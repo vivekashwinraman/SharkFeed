@@ -7,15 +7,20 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.sharkfeed.R;
 
+import rx.subscriptions.CompositeSubscription;
+
 public class BaseActivity extends AppCompatActivity {
+
+    protected CompositeSubscription compositeSubscription = new CompositeSubscription();
 
     /************************************************************************************************/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
     /************************************************************************************************/
-    protected void showErrorDialog(String message){
+    protected void showErrorDialog(String message) {
         AlertDialog alertDialog = new AlertDialog.Builder(BaseActivity.this).create();
         alertDialog.setTitle(BaseActivity.this.getResources().getText(R.string.app_name));
         alertDialog.setMessage(message);
@@ -27,6 +32,13 @@ public class BaseActivity extends AppCompatActivity {
                 });
         alertDialog.show();
 
+    }
+
+    /************************************************************************************************/
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        compositeSubscription.unsubscribe();
     }
     /************************************************************************************************/
 }

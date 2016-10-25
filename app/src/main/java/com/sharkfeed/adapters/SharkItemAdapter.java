@@ -2,6 +2,7 @@ package com.sharkfeed.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,8 +12,8 @@ import android.widget.ImageView;
 
 import com.sharkfeed.R;
 import com.sharkfeed.activities.ImageDetailActivity;
+import com.sharkfeed.business.managers.ImageManager;
 import com.sharkfeed.modelobjects.SharkItem;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -21,12 +22,14 @@ import java.util.List;
  */
 public class SharkItemAdapter extends RecyclerView.Adapter<SharkItemAdapter.ViewHolder> {
     private List<SharkItem> sharkItemList;
+    private ImageManager imageManager;
     private Context context;
 
     /************************************************************************************************/
     public SharkItemAdapter(List<SharkItem> sharkItemList, Context context) {
         this.sharkItemList = sharkItemList;
         this.context = context;
+        imageManager = new ImageManager();
     }
 
     /************************************************************************************************/
@@ -44,13 +47,19 @@ public class SharkItemAdapter extends RecyclerView.Adapter<SharkItemAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
         SharkItem sharkItem = sharkItemList.get(position);
-        if(sharkItem !=null){
-            Picasso.with(context).load(sharkItem.getImageUrlThumbnail()).resize(100, 100).into(viewHolder.imgViewIcon);
+        if (sharkItem != null) {
+            final Bitmap bitmap = imageManager.getBitmapFromCache(sharkItem.getImageUrlThumbnail());
+            if (bitmap == null) {
+                viewHolder.imgViewIcon.setImageResource(R.mipmap.ic_launcher);
+                imageManager.loadUrlImage(viewHolder.imgViewIcon, sharkItem.getImageUrlThumbnail(), 100, 100);
+            } else {
+                viewHolder.imgViewIcon.setImageBitmap(bitmap);
+            }
         }
     }
 
     /************************************************************************************************/
-    public  class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ImageView imgViewIcon;
 
         public ViewHolder(View itemLayoutView) {

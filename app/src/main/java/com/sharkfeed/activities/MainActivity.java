@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import rx.Subscriber;
-import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
@@ -49,6 +48,7 @@ public class MainActivity extends BaseActivity {
                 swipeRefreshLayout.setRefreshing(true);
                 layoutManager.scrollToPosition(0);
                 sharkItemList.clear();
+                currentPage = 1;
                 refreshItems(currentPage);
 
             }

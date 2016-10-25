@@ -17,12 +17,12 @@ import com.sharkfeed.apicommunicators.FlickrApiCommunicator;
 import com.sharkfeed.apicommunicators.ServerInteractor;
 import com.sharkfeed.business.contracts.FlickrPhotoInfoContract;
 import com.sharkfeed.business.managers.FlickrManager;
+import com.sharkfeed.business.managers.ImageManager;
 import com.sharkfeed.modelobjects.ServerResponseObject;
 import com.sharkfeed.modelobjects.SharkItem;
 import com.sharkfeed.receivers.DownloadReceiver;
 import com.sharkfeed.services.DownloadImageService;
 import com.sharkfeed.uicontrols.SharkFeedProgressDialog;
-import com.squareup.picasso.Picasso;
 
 import rx.Subscriber;
 
@@ -37,6 +37,7 @@ public class ImageDetailActivity extends BaseActivity implements DownloadReceive
     private String flickrUrl;
     private DownloadReceiver downloadReceiver;
     private ProgressDialog sharkFeedProgressDialog;
+    private ImageManager imageManager;
 
     /************************************************************************************************/
     @Override
@@ -49,7 +50,8 @@ public class ImageDetailActivity extends BaseActivity implements DownloadReceive
         imageDetailView = (ImageView) findViewById(R.id.imageDetail);
         imageDescription = (TextView) findViewById(R.id.imageDescription);
         imageDescription.setText(sharkItem.getTitle());
-        Picasso.with(this).load(sharkItem.getImageUrlLarge()).into(imageDetailView);
+        imageManager = new ImageManager();
+        imageManager.loadUrlImage(imageDetailView,sharkItem.getImageUrlLarge(),800,800);
         downloadButton = (ImageButton) findViewById(R.id.downloadButton);
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override

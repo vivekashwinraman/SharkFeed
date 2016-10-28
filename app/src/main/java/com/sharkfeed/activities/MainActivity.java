@@ -1,12 +1,17 @@
 package com.sharkfeed.activities;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import com.sharkfeed.R;
 import com.sharkfeed.adapters.SharkItemAdapter;
@@ -34,6 +39,7 @@ public class MainActivity extends BaseActivity {
     private int itemCount, lastVisibleItem;
     private int visibleThreshold = 5;
     private boolean loading;
+    private String searchText = "";
 
     /************************************************************************************************/
     @Override
@@ -53,7 +59,6 @@ public class MainActivity extends BaseActivity {
 
             }
         });
-        refreshItems(currentPage);
         layoutManager = new GridLayoutManager(this, 3);
         layoutManager.setOrientation(GridLayoutManager.VERTICAL);
         sharkRecyclerView = (RecyclerView) findViewById(R.id.sharkRecyclerView);
@@ -63,9 +68,48 @@ public class MainActivity extends BaseActivity {
         sharkRecyclerView.setItemAnimator(new DefaultItemAnimator());
         addScrollListener();
     }
+
+    /************************************************************************************************/
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_search, menu);
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setQuery(searchText, true);
+        searchView.setIconifiedByDefault(false);
+        searchView.setQueryHint("Search Images ..");
+
+        SearchView.OnQueryTextListener textChangeListener = new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String queryValue) {
+                searchText = queryValue;
+                currentPage = 1;
+                sharkItemList.clear();
+                sharkItemAdapter.notifyDataSetChanged();
+                refreshItems(currentPage);
+                return true;
+            }
+        };
+        searchView.setOnQueryTextListener(textChangeListener);
+        return true;
+    }
+
     /************************************************************************************************/
     private void refreshItems(final int page) {
-        String endpoint = "?method=flickr.photos.search&api_key=" + FlickrApiCommunicator.API_KEY + "&tags=shark&format=json&nojsoncallback=1&page=" + page + "&extras=url_t,url_l";
+        String endpoint = "?method=flickr.photos.search&api_key=" + FlickrApiCommunicator.API_KEY + "&tags=" + searchText + "&format=json&nojsoncallback=1&page=" + page + "&extras=url_t,url_l";
         Subscriber<ServerResponseObject> subscriber = new Subscriber<ServerResponseObject>() {
             @Override
             public void onCompleted() {
@@ -82,7 +126,7 @@ public class MainActivity extends BaseActivity {
                 onPhotoListResponse(serverResponseObject);
             }
         };
-        compositeSubscription.add(new ServerInteractor(new FlickrManager(FlickrPhotoContract.class,endpoint), FlickrManager.class).makeServerRequest(subscriber));
+        compositeSubscription.add(new ServerInteractor(new FlickrManager(FlickrPhotoContract.class, endpoint), FlickrManager.class).makeServerRequest(subscriber));
     }
 
     /************************************************************************************************/
@@ -101,6 +145,7 @@ public class MainActivity extends BaseActivity {
         }
         swipeRefreshLayout.setRefreshing(false);
     }
+
     /************************************************************************************************/
     private void addScrollListener() {
         sharkRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {

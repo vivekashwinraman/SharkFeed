@@ -8,18 +8,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:src="@mipmap/shark_feed_logo"
+        android:src="@mipmap/app_logo"
         android:layout_margin="@dimen/margin_medium"
-        android:tileMode="repeat" />
-
-    <ImageView
-        android:id="@+id/imgText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:src="@mipmap/shark_feed"
-        android:layout_margin="@dimen/margin_medium"
-        android:layout_below="@+id/imgLogo"
         android:tileMode="repeat" />
 
 

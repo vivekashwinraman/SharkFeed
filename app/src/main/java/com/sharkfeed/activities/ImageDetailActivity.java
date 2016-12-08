@@ -19,10 +19,10 @@ import com.sharkfeed.business.contracts.FlickrPhotoInfoContract;
 import com.sharkfeed.business.managers.FlickrManager;
 import com.sharkfeed.business.managers.ImageManager;
 import com.sharkfeed.modelobjects.ServerResponseObject;
-import com.sharkfeed.modelobjects.SharkItem;
+import com.sharkfeed.modelobjects.ImageItem;
 import com.sharkfeed.receivers.DownloadReceiver;
 import com.sharkfeed.services.DownloadImageService;
-import com.sharkfeed.uicontrols.SharkFeedProgressDialog;
+import com.sharkfeed.uicontrols.ImageFeedProgressDialog;
 
 import rx.Subscriber;
 
@@ -33,7 +33,7 @@ public class ImageDetailActivity extends BaseActivity implements DownloadReceive
     private ImageButton downloadButton;
     private ImageButton openInApp;
     private TextView imageDescription;
-    private SharkItem sharkItem;
+    private ImageItem imageItem;
     private String flickrUrl;
     private DownloadReceiver downloadReceiver;
     private ProgressDialog sharkFeedProgressDialog;
@@ -46,20 +46,20 @@ public class ImageDetailActivity extends BaseActivity implements DownloadReceive
         setContentView(R.layout.activity_image_detail);
         downloadReceiver = new DownloadReceiver(new Handler());
         downloadReceiver.setReceiver(this);
-        sharkItem = (SharkItem) getIntent().getParcelableExtra("image");
+        imageItem = (ImageItem) getIntent().getParcelableExtra("image");
         imageDetailView = (ImageView) findViewById(R.id.imageDetail);
         imageDescription = (TextView) findViewById(R.id.imageDescription);
-        imageDescription.setText(sharkItem.getTitle());
+        imageDescription.setText(imageItem.getTitle());
         imageManager = new ImageManager();
-        imageManager.loadUrlImage(imageDetailView,sharkItem.getImageUrlLarge(),800,800);
+        imageManager.loadUrlImage(imageDetailView, imageItem.getImageUrlLarge(),800,800);
         downloadButton = (ImageButton) findViewById(R.id.downloadButton);
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sharkFeedProgressDialog = SharkFeedProgressDialog.create(ImageDetailActivity.this, getString(R.string.downloading));
+                sharkFeedProgressDialog = ImageFeedProgressDialog.create(ImageDetailActivity.this, getString(R.string.downloading));
                 sharkFeedProgressDialog.show();
                 Intent intent = new Intent(getApplicationContext(), DownloadImageService.class);
-                intent.putExtra("downloadImageUrl", sharkItem.getImageUrlLarge());
+                intent.putExtra("downloadImageUrl", imageItem.getImageUrlLarge());
                 intent.putExtra("receiver", downloadReceiver);
                 startService(intent);
             }
@@ -69,9 +69,9 @@ public class ImageDetailActivity extends BaseActivity implements DownloadReceive
             @Override
             public void onClick(View v) {
                 if (flickrUrl == null || flickrUrl.isEmpty()) {
-                    sharkFeedProgressDialog = SharkFeedProgressDialog.create(ImageDetailActivity.this, getString(R.string.opening_in_app));
+                    sharkFeedProgressDialog = ImageFeedProgressDialog.create(ImageDetailActivity.this, getString(R.string.opening_in_app));
                     sharkFeedProgressDialog.show();
-                    getFlickrPhotoInfo(sharkItem.getId());
+                    getFlickrPhotoInfo(imageItem.getId());
                 } else {
                     openUrlInFlickrApp();
                 }

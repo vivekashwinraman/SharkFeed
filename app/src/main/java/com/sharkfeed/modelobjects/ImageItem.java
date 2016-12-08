@@ -8,19 +8,19 @@ import com.sharkfeed.business.contracts.PhotoContract;
 /**
  * Created by vraman on 2/9/16.
  */
-public class SharkItem implements Parcelable {
+public class ImageItem implements Parcelable {
     private String id;
     private String imageUrlThumbnail;
     private String imageUrlLarge;
     private String title;
 
     /************************************************************************************************/
-    public SharkItem() {
+    public ImageItem() {
 
     }
 
     /************************************************************************************************/
-    public SharkItem(PhotoContract photoContract) {
+    public ImageItem(PhotoContract photoContract) {
         this.id = photoContract.id;
         this.imageUrlThumbnail = photoContract.url_t;
         this.imageUrlLarge = photoContract.url_l;
@@ -61,18 +61,18 @@ public class SharkItem implements Parcelable {
     }
 
     /************************************************************************************************/
-    public static final Parcelable.Creator<SharkItem> CREATOR = new Creator<SharkItem>() {
-        public SharkItem createFromParcel(Parcel source) {
-            SharkItem sharkItem = new SharkItem();
-            sharkItem.id = source.readString();
-            sharkItem.imageUrlThumbnail = source.readString();
-            sharkItem.imageUrlLarge = source.readString();
-            sharkItem.title = source.readString();
-            return sharkItem;
+    public static final Parcelable.Creator<ImageItem> CREATOR = new Creator<ImageItem>() {
+        public ImageItem createFromParcel(Parcel source) {
+            ImageItem imageItem = new ImageItem();
+            imageItem.id = source.readString();
+            imageItem.imageUrlThumbnail = source.readString();
+            imageItem.imageUrlLarge = source.readString();
+            imageItem.title = source.readString();
+            return imageItem;
         }
 
-        public SharkItem[] newArray(int size) {
-            return new SharkItem[size];
+        public ImageItem[] newArray(int size) {
+            return new ImageItem[size];
         }
     };
     /************************************************************************************************/

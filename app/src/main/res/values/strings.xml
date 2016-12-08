@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SharkFeed</string>
+    <string name="app_name">Image Search</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_image_detail">ImageDetailActivity</string>

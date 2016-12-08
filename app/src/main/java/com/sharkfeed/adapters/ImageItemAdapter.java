@@ -13,28 +13,28 @@ import android.widget.ImageView;
 import com.sharkfeed.R;
 import com.sharkfeed.activities.ImageDetailActivity;
 import com.sharkfeed.business.managers.ImageManager;
-import com.sharkfeed.modelobjects.SharkItem;
+import com.sharkfeed.modelobjects.ImageItem;
 
 import java.util.List;
 
 /**
  * Created by vraman on 2/9/16.
  */
-public class SharkItemAdapter extends RecyclerView.Adapter<SharkItemAdapter.ViewHolder> {
-    private List<SharkItem> sharkItemList;
+public class ImageItemAdapter extends RecyclerView.Adapter<ImageItemAdapter.ViewHolder> {
+    private List<ImageItem> imageItemList;
     private ImageManager imageManager;
     private Context context;
 
     /************************************************************************************************/
-    public SharkItemAdapter(List<SharkItem> sharkItemList, Context context) {
-        this.sharkItemList = sharkItemList;
+    public ImageItemAdapter(List<ImageItem> imageItemList, Context context) {
+        this.imageItemList = imageItemList;
         this.context = context;
         imageManager = new ImageManager();
     }
 
     /************************************************************************************************/
     @Override
-    public SharkItemAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+    public ImageItemAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                           int viewType) {
         View itemLayoutView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.shark_item, null);
@@ -46,12 +46,12 @@ public class SharkItemAdapter extends RecyclerView.Adapter<SharkItemAdapter.View
     /************************************************************************************************/
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
-        SharkItem sharkItem = sharkItemList.get(position);
-        if (sharkItem != null) {
-            final Bitmap bitmap = imageManager.getBitmapFromCache(sharkItem.getImageUrlThumbnail());
+        ImageItem imageItem = imageItemList.get(position);
+        if (imageItem != null) {
+            final Bitmap bitmap = imageManager.getBitmapFromCache(imageItem.getImageUrlThumbnail());
             if (bitmap == null) {
                 viewHolder.imgViewIcon.setImageResource(R.mipmap.ic_launcher);
-                imageManager.loadUrlImage(viewHolder.imgViewIcon, sharkItem.getImageUrlThumbnail(), 100, 100);
+                imageManager.loadUrlImage(viewHolder.imgViewIcon, imageItem.getImageUrlThumbnail(), 100, 100);
             } else {
                 viewHolder.imgViewIcon.setImageBitmap(bitmap);
             }
@@ -72,7 +72,7 @@ public class SharkItemAdapter extends RecyclerView.Adapter<SharkItemAdapter.View
         public void onClick(View v) {
             Intent intent = new Intent(context, ImageDetailActivity.class);
             Bundle mBundle = new Bundle();
-            mBundle.putParcelable("image", sharkItemList.get(getAdapterPosition()));
+            mBundle.putParcelable("image", imageItemList.get(getAdapterPosition()));
             intent.putExtras(mBundle);
             context.startActivity(intent);
         }
@@ -80,7 +80,7 @@ public class SharkItemAdapter extends RecyclerView.Adapter<SharkItemAdapter.View
     /************************************************************************************************/
     @Override
     public int getItemCount() {
-        return sharkItemList.size();
+        return imageItemList.size();
     }
     /************************************************************************************************/
 }

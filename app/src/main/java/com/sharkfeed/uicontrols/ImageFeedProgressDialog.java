@@ -10,13 +10,13 @@ import com.sharkfeed.R;
 /**
  * Created by vraman on 2/15/16.
  */
-public class SharkFeedProgressDialog extends ProgressDialog {
+public class ImageFeedProgressDialog extends ProgressDialog {
 
     private String progressText;
 
     /************************************************************************************************/
     public static ProgressDialog create(Context context, String progressText) {
-        SharkFeedProgressDialog loginProgressDialog = new SharkFeedProgressDialog(context);
+        ImageFeedProgressDialog loginProgressDialog = new ImageFeedProgressDialog(context);
         loginProgressDialog.setIndeterminate(true);
         loginProgressDialog.setCancelable(false);
         loginProgressDialog.progressText = progressText;
@@ -24,7 +24,7 @@ public class SharkFeedProgressDialog extends ProgressDialog {
     }
 
     /************************************************************************************************/
-    public SharkFeedProgressDialog(Context context) {
+    public ImageFeedProgressDialog(Context context) {
         super(context);
     }
 

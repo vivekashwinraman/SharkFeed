@@ -14,14 +14,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 
 import com.sharkfeed.R;
-import com.sharkfeed.adapters.SharkItemAdapter;
+import com.sharkfeed.adapters.ImageItemAdapter;
 import com.sharkfeed.apicommunicators.FlickrApiCommunicator;
 import com.sharkfeed.apicommunicators.ServerInteractor;
 import com.sharkfeed.business.contracts.FlickrPhotoContract;
 import com.sharkfeed.business.contracts.PhotoContract;
 import com.sharkfeed.business.managers.FlickrManager;
 import com.sharkfeed.modelobjects.ServerResponseObject;
-import com.sharkfeed.modelobjects.SharkItem;
+import com.sharkfeed.modelobjects.ImageItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +32,8 @@ public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
     private RecyclerView sharkRecyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private SharkItemAdapter sharkItemAdapter;
-    private List<SharkItem> sharkItemList = new ArrayList<SharkItem>();
+    private ImageItemAdapter imageItemAdapter;
+    private List<ImageItem> imageItemList = new ArrayList<ImageItem>();
     private static int currentPage = 1;
     private GridLayoutManager layoutManager;
     private int itemCount, lastVisibleItem;
@@ -53,7 +53,7 @@ public class MainActivity extends BaseActivity {
             public void onRefresh() {
                 swipeRefreshLayout.setRefreshing(true);
                 layoutManager.scrollToPosition(0);
-                sharkItemList.clear();
+                imageItemList.clear();
                 currentPage = 1;
                 refreshItems(currentPage);
 
@@ -63,8 +63,8 @@ public class MainActivity extends BaseActivity {
         layoutManager.setOrientation(GridLayoutManager.VERTICAL);
         sharkRecyclerView = (RecyclerView) findViewById(R.id.sharkRecyclerView);
         sharkRecyclerView.setLayoutManager(layoutManager);
-        sharkItemAdapter = new SharkItemAdapter(sharkItemList, this);
-        sharkRecyclerView.setAdapter(sharkItemAdapter);
+        imageItemAdapter = new ImageItemAdapter(imageItemList, this);
+        sharkRecyclerView.setAdapter(imageItemAdapter);
         sharkRecyclerView.setItemAnimator(new DefaultItemAnimator());
         addScrollListener();
     }
@@ -97,8 +97,8 @@ public class MainActivity extends BaseActivity {
             public boolean onQueryTextSubmit(String queryValue) {
                 searchText = queryValue;
                 currentPage = 1;
-                sharkItemList.clear();
-                sharkItemAdapter.notifyDataSetChanged();
+                imageItemList.clear();
+                imageItemAdapter.notifyDataSetChanged();
                 refreshItems(currentPage);
                 return true;
             }
@@ -135,9 +135,9 @@ public class MainActivity extends BaseActivity {
             FlickrPhotoContract flickrPhotoContract = (FlickrPhotoContract) (serverResponseObject.getResponseObject());
             for (int i = 0; i < flickrPhotoContract.photoListContract.photoContractList.size(); i++) {
                 PhotoContract photoContract = flickrPhotoContract.photoListContract.photoContractList.get(i);
-                sharkItemList.add(new SharkItem(photoContract));
+                imageItemList.add(new ImageItem(photoContract));
             }
-            sharkItemAdapter.notifyDataSetChanged();
+            imageItemAdapter.notifyDataSetChanged();
             loading = false;
             Log.v(TAG, String.valueOf(flickrPhotoContract.stat));
         } else {
